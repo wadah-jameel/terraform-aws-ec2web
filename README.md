@@ -200,7 +200,7 @@ MIT License - feel free to use this project for learning!
 
 ## 👤 Author
 
-Your Name - [Your GitHub Profile](https://github.com/YOUR_USERNAME)
+Wadah Ahmed - [Your GitHub Profile](https://github.com/wadah-jameel)
 
 ## 🙏 Acknowledgments
 
