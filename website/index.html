@@ -1,0 +1,35 @@
+# Create index.html
+cat > website/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Terraform Deployed Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Welcome to My Terraform-Deployed Website!</h1>
+        <p>This website is running on AWS EC2, deployed using Terraform.</p>
+        <p><strong>Infrastructure as Code FTW!</strong></p>
+    </div>
+</body>
+</html>
+EOF
