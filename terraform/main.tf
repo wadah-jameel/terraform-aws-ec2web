@@ -28,15 +28,6 @@ resource "aws_security_group" "web_sg" {
     description = "Allow HTTP"
   }
 
-  # Allow SSH from anywhere (restrict this in production!)
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow SSH"
-  }
-
   # Allow all outbound traffic
   egress {
     from_port   = 0
@@ -52,13 +43,42 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-# Create SSH key pair
-resource "aws_key_pair" "web_key" {
-  key_name   = "${var.project_name}-key"
-  public_key = file("~/.ssh/id_rsa.pub")
+# IAM role for EC2 instances (for SSM access)
+resource "aws_iam_role" "ec2_role" {
+  name = "${var.project_name}-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
 
   tags = {
-    Name    = "${var.project_name}-key"
+    Name    = "${var.project_name}-ec2-role"
+    Project = var.project_name
+  }
+}
+
+# Attach SSM policy to role
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# Create instance profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "${var.project_name}-ec2-profile"
+  role = aws_iam_role.ec2_role.name
+
+  tags = {
+    Name    = "${var.project_name}-ec2-profile"
     Project = var.project_name
   }
 }
@@ -127,8 +147,8 @@ resource "aws_instance" "web" {
   count                  = var.instance_count
   ami                    = data.aws_ami.amazon_linux_2023.id
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.web_key.key_name
   vpc_security_group_ids = [aws_security_group.web_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   user_data              = local.user_data
 
   tags = {

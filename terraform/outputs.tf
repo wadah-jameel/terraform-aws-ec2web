@@ -22,3 +22,10 @@ output "security_group_id" {
   description = "ID of the security group"
   value       = aws_security_group.web_sg.id
 }
+
+output "ssm_connection_commands" {
+  description = "Commands to connect via AWS Systems Manager"
+  value = [for instance in aws_instance.web : 
+    "aws ssm start-session --target ${instance.id} --region ${var.aws_region}"
+  ]
+}
